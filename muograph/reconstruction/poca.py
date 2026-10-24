@@ -111,24 +111,34 @@ class POCA(AbsSave, AbsVoxelInferer, Generic[P]):
     @staticmethod
     def compute_parallel_mask(tracks_in: Tensor, tracks_out: Tensor, tol: float = 1e-7) -> Tensor:
         """
-        Compute a mask to filter out events with parallel or nearly parallel tracks.
+        Return a mask identifying nonparallel track pairs.
 
-        Arguments:
-            tracks_in: Tensor containing the incoming tracks, with size (n_mu, 3).
-            tracks_out: Tensor containing the outgoing tracks, with size (n_mu, 3).
-            tol: Tolerance value for determining if tracks are parallel.
+        Uses the normalized cross-product magnitude, which is
+        invariant under rotations and independent of vector lengths.
+
+        Args:
+            tracks_in: Incoming track directions, shape (n_mu, 3).
+            tracks_out: Outgoing track directions, shape (n_mu, 3).
+            tol: Minimum accepted value of sin(theta).
 
         Returns:
-        Tensor: Boolean mask of shape (n_mu,), True where tracks are **not parallel**.
+            Boolean tensor, True for accepted nonparallel pairs.
         """
-        # Compute the cross product for all pairs at once
         cross_prod = torch.linalg.cross(tracks_in, tracks_out, dim=1)
 
-        # Compute the mask by checking if the cross product magnitude is below the tolerance
-        mask = torch.all(torch.abs(cross_prod) >= tol, dim=1)
+        cross_norm = torch.linalg.vector_norm(cross_prod, dim=1)
 
-        return mask
+        norm_product = (
+            torch.linalg.vector_norm(tracks_in, dim=1)
+            * torch.linalg.vector_norm(tracks_out, dim=1)
+        )
 
+        sin_theta = cross_norm / norm_product.clamp_min(
+            torch.finfo(cross_norm.dtype).tiny
+        )
+
+        return torch.isfinite(sin_theta) & (sin_theta >= tol)
+        
     def _filter_pocas(self, mask: Tensor) -> None:
         r"""
         Removes POCA points where `mask` is False.
