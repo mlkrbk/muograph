@@ -201,7 +201,9 @@ class Tracking(AbsSave):
             tracks[start:end, :] = tracks_chunk
             points[start:end, :] = points_chunk.T
 
-        tracks[:, 2] = torch.where(tracks[:, 2] > 0, -tracks[:, 2], tracks[:, 2])
+	# SVD directions have an arbitrary global sign.
+	# Orient the entire direction vector downward.
+        tracks = torch.where(tracks[:, 2:3] > 0, -tracks, tracks)
         return tracks, points
 
     @staticmethod
@@ -810,7 +812,7 @@ class TrackingMST:
         def norm(x: Tensor) -> Tensor:
             return torch.sqrt((x**2).sum(dim=-1))
 
-        dot_prod = torch.abs(tracks_in * tracks_out).sum(dim=-1) / (norm(tracks_in) * norm(tracks_out))
+        dot_prod = (tracks_in * tracks_out).sum(dim=-1) / (norm(tracks_in) * norm(tracks_out))
         dot_prod = torch.clamp(dot_prod, -1.0 + tol, 1.0 - tol)
         dtheta = torch.acos(dot_prod)
         return dtheta
