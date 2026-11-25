@@ -169,3 +169,29 @@ dev/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# Local macOS files
+.DS_Store
+
+# Geant4 generated build files
+simulation/muon_scattering/build/
+
+# Generated simulation results (except reference benchmark)
+simulation/muon_scattering/results/*
+!simulation/muon_scattering/results/benchmark_10000/
+simulation/muon_scattering/results/benchmark_10000/*
+!simulation/muon_scattering/results/benchmark_10000/spacing_400mm/
+
+# Simulation output CSVs in source directory
+simulation/muon_scattering/*.csv
+
+# Development backups
+simulation/muon_scattering/main_initial.cc
+simulation/muon_scattering/main_before_truth.cc
+muograph/tracking/tracking_before_svd_fix.py
+
+# Generated research outputs
+research_outputs/
+
+# Jupyter temporary files
+.ipynb_checkpoints/
