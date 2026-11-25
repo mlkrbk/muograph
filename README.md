@@ -1,3 +1,50 @@
+## Fork-specific research and contributions
+
+This fork extends the original [Muograph project](https://github.com/MaximeLagrange/muograph)
+with tracking corrections and a reproducible Geant4 muon-scattering
+tomography benchmark.
+
+### Tracking corrections
+
+- Corrected the orientation of SVD-reconstructed track-direction vectors.
+- Corrected the scattering-angle calculation using the signed
+  dot product of incoming and outgoing track directions.
+- Added regression tests for both corrections.
+
+See `muograph/tracking/tracking.py` and
+`muograph/test/test_tracking_regressions.py`.
+
+### Geant4 reconstruction benchmark
+
+A controlled simulation of 10,000 incident muons passing through
+a rectangular iron target is used to evaluate reconstruction methods.
+
+The study includes:
+
+- Geant4 simulation source and reference CSV data.
+- Native Binned Clustering Algorithm (BCA) reconstruction.
+- Matched PoCA mean-squared-angle reconstruction.
+- Pairwise-scoring ablations.
+- Detector-position-noise robustness over 30 random seeds.
+- Reproducible Jupyter notebooks.
+
+**Main finding:** Under the tested simulation conditions, PoCA
+mean-squared-angle scoring achieved higher average Spearman
+correlation with iron volume fraction than the default native
+BCA scoring method.
+
+At a minimum occupancy of five PoCA points per voxel, PoCA
+outperformed BCA in 27 of 30 detector-noise realizations.
+
+This is a configuration-specific result, not a general performance
+ranking of muon tomography algorithms.
+
+**[Read the benchmark methodology, results, and reproduction guide](research/README.md)**
+
+The original Muograph project and its documentation are retained below.
+
+---
+
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![CI-tests](https://github.com/MaximeLagrange/muograph/actions/workflows/test.yml/badge.svg)](https://github.com/MaximeLagrange/muograph/actions)
 [![CI-lints](https://github.com/MaximeLagrange/muograph/actions/workflows/lint.yml/badge.svg)](https://github.com/MaximeLagrange/muograph/actions)

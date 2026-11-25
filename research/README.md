@@ -153,3 +153,78 @@ scattering-density estimates.
 
 The noise realizations share the same generated muon population,
 and adjacent voxel measurements are not statistically independent.
+
+## Benchmark visualization
+
+![Mean PoCA and BCA correlations](figures/benchmark_correlations.png)
+
+Mean Spearman correlations over 30 detector-noise realizations,
+with standard-deviation error bars. The same Geant4 muon
+population is reused for every realization.
+
+Regenerate the figure from the verified summary statistics:
+
+    python research/plot_benchmark_summary.py
+
+## Reproducing the benchmark from a fresh clone
+
+The benchmark requires the corrected tracking implementation in
+this fork, rather than the original Muograph package from PyPI.
+
+### Installation
+
+Clone the research branch:
+
+    git clone --branch research/geant4-bca-benchmark https://github.com/mlkrbk/muograph.git
+    cd muograph
+
+Install dependencies using Poetry:
+
+    poetry install
+
+Alternatively, in a compatible Python environment:
+
+    python -m pip install -e .
+    python -m pip install jupyter nbconvert
+
+The benchmark was validated using Python 3.11.17,
+PyTorch 2.7.1, NumPy 1.26.4, pandas 1.5.3,
+SciPy 1.15.3, and Matplotlib 3.10.5.
+
+### Running the notebooks
+
+From the repository root, execute:
+
+    python -m jupyter nbconvert --to notebook --execute research/11_geant4_native_bca_benchmark_clean.ipynb --output 11_geant4_native_bca_benchmark_verified.ipynb --ExecutePreprocessor.timeout=600
+
+    python -m jupyter nbconvert --to notebook --execute research/12_geant4_bca_noise_robustness_clean.ipynb --output 12_geant4_bca_noise_robustness_verified.ipynb --ExecutePreprocessor.timeout=600
+
+The notebooks use paths relative to the research directory.
+They read the included Geant4 reference CSVs.
+
+### Expected results
+
+At a minimum occupancy of five PoCA points per voxel,
+over detector-noise seeds 42 through 71:
+
+- Mean PoCA Spearman correlation: 0.5313
+- Mean native BCA Spearman correlation: 0.4526
+- Mean paired PoCA advantage: 0.0787
+- PoCA wins: 27 of 30 realizations
+
+These results were verified in the local development environment.
+A separate fresh-clone environment has not yet been validated.
+
+### Provenance and attribution
+
+The original Muograph library was developed by Maxime Lagrange
+and contributors:
+
+https://github.com/MaximeLagrange/muograph
+
+This fork adds tracking corrections, regression tests, a Geant4
+benchmark, reconstruction comparisons, and detector-noise
+robustness analysis.
+
+The original attribution is retained, and modifications are
+distributed under the repository's AGPL-3.0-only license.
